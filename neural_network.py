@@ -1,5 +1,7 @@
 import numpy as np
 
+from random import shuffle
+
 
 class Network:
     def __init__(self, layer_sizes):
@@ -12,3 +14,13 @@ class Network:
             input_neuron_nums = self.layer_sizes[i]
             output_neuron_nums = self.layer_sizes[i + 1]
             self.weights.append(np.random.rand(input_neuron_nums, output_neuron_nums))
+
+    def train(self, training_data, mini_batch_size):
+        mini_batches = self.get_mini_batches(training_data, mini_batch_size)
+        print('mini batch size: ', mini_batch_size)
+        print('number of batches: ', len(mini_batches))
+
+
+    def get_mini_batches(self, training_data, mini_batch_size):
+        shuffle(training_data)
+        return [training_data[i:i + mini_batch_size] for i in range(0, len(training_data), mini_batch_size)]

@@ -1,0 +1,3 @@
+LAYER_SIZES = [10, 5, 3, 2]
+MINI_BATCH_SIZE = 10
+

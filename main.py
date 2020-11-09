@@ -1,6 +1,7 @@
 from numpy import genfromtxt, zeros
 
-import Network
+from neural_network import Network
+from nn_config import LAYER_SIZES, MINI_BATCH_SIZE
 
 
 def get_training_data():
@@ -13,14 +14,13 @@ def get_training_data():
         train_label_binary[i][val] = 1
 
     print('checking input shape...')
-    print('train image')
-    print(train_image.shape)
-    print('train label')
-    print(train_label_binary.shape)
+    print('train image shape: ', train_image.shape)
+    print('train label shape: ', train_label_binary.shape)
 
     return list(zip(train_image, train_label_binary))
 
 
 training_data = get_training_data()
 
-neural_network = Network.Network([10, 5, 3, 2])
+neural_network = Network(LAYER_SIZES)
+neural_network.train(training_data, MINI_BATCH_SIZE)
