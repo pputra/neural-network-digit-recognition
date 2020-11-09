@@ -1,4 +1,6 @@
-from numpy import genfromtxt,zeros
+from numpy import genfromtxt, zeros
+
+import Network
 
 
 def get_training_data():
@@ -20,3 +22,5 @@ def get_training_data():
 
 
 training_data = get_training_data()
+
+neural_network = Network.Network([10, 5, 3, 2])
