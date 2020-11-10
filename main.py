@@ -19,7 +19,7 @@ def get_training_data():
     # print('checking input shape...')
     # print('train image shape: ', train_image.shape)
     # print('train label shape: ', train_label_binary.shape)
-    return list((train_image, train_label_binary))
+    return [[x, y] for x, y in zip(train_image, train_label_binary)]
 
 
 training_data = get_training_data()

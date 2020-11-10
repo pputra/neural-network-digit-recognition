@@ -20,20 +20,20 @@ class Network:
     def train(self, training_data, mini_batch_size, epochs):
         for epoch_i in range(epochs):
             mini_batches = self.get_mini_batches(training_data, mini_batch_size)
-            for batch in mini_batches:
-                # forward pass
-                activations = [batch[0][0]]
-                activation = activations[0]
-                print(activation)
-                for i in range(len(self.biases)):
-                    bias = self.biases[i]
-                    weight = self.weights[i]
-                    z = np.dot(weight, activation) + bias
-                    activation = activations_fn.sigmoid(z)
-                    activations.append(z)
+            for mini_batch in mini_batches:
+                for data in mini_batch:
+                    # forward pass
+                    activations = [data[0]]
+                    activation = activations[0]
+                    for i in range(len(self.biases)):
+                        bias = self.biases[i]
+                        weight = self.weights[i]
+                        z = np.dot(weight, activation) + bias
+                        activation = activations_fn.sigmoid(z)
+                        activations.append(z)
 
-                print(activations)
-                exit()
+                    print(activations)
+                    exit()
 
 
     def get_mini_batches(self, training_data, mini_batch_size):
