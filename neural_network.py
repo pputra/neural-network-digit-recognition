@@ -1,7 +1,7 @@
 import numpy as np
 
 from random import shuffle
-import activations_fn
+import math_utils
 
 
 class Network:
@@ -25,14 +25,20 @@ class Network:
                     # forward pass
                     activations = [data[0]]
                     activation = activations[0]
+                    weight_activation_dot_products = []
                     for i in range(len(self.biases)):
                         bias = self.biases[i]
                         weight = self.weights[i]
                         z = np.dot(weight, activation) + bias
-                        activation = activations_fn.sigmoid(z)
-                        activations.append(z)
+                        activation = math_utils.sigmoid(z)
+                        activations.append(activation)
+                        weight_activation_dot_products.append(z)
 
-                    print(activations)
+                    # backward propagation
+                    output_diff = activations[-1] - data[1]
+                    err = output_diff * math_utils.sigmoid_derivative(weight_activation_dot_products[-1])
+
+                    print(err)
                     exit()
 
 
