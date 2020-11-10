@@ -15,30 +15,44 @@ class Network:
             input_neuron_nums = self.layer_sizes[i]
             output_neuron_nums = self.layer_sizes[i + 1]
             self.weights.append(np.random.randn(output_neuron_nums, input_neuron_nums))
-            # self.weights.append(np.ones((output_neuron_nums, input_neuron_nums)))
 
     def train(self, training_data, mini_batch_size, epochs):
         for epoch_i in range(epochs):
             mini_batches = self.get_mini_batches(training_data, mini_batch_size)
             for mini_batch in mini_batches:
                 for data in mini_batch:
+                    bias_gradients = [np.zeros(bias.shape) for bias in self.biases]
+                    weight_gradients = [np.zeros(weight.shape) for weight in self.weights]
+
                     # forward pass
                     activations = [data[0]]
                     activation = activations[0]
-                    weight_activation_dot_products = []
+                    sigmoid_z_caches = []
+
                     for i in range(len(self.biases)):
                         bias = self.biases[i]
                         weight = self.weights[i]
                         z = np.dot(weight, activation) + bias
                         activation = math_utils.sigmoid(z)
                         activations.append(activation)
-                        weight_activation_dot_products.append(z)
+                        sigmoid_z_caches.append(z)
 
                     # backward propagation
-                    output_diff = activations[-1] - data[1]
-                    err = output_diff * math_utils.sigmoid_derivative(weight_activation_dot_products[-1])
 
-                    print(err)
+                    # err for the output layer
+                    output_diff = activations[-1] - data[1]
+                    err = output_diff * math_utils.sigmoid_derivative(sigmoid_z_caches[-1])
+
+                    bias_gradients[-1] = err
+                    weight_gradients[-1] = np.dot(err, activations[-2].T)
+
+                    # err for the hidden layers
+                    for l in range(len(self.layer_sizes) - 1, 1, -1):
+                        err = np.dot(self.weights[l-1].T, err) * \
+                            math_utils.sigmoid_derivative(sigmoid_z_caches[l-2])
+                        bias_gradients[l-2] = err
+                        weight_gradients[l-2] = np.dot(err, activations[l-2].T)
+
                     exit()
 
 
