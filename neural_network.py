@@ -21,39 +21,47 @@ class Network:
             mini_batches = self.get_mini_batches(training_data, mini_batch_size)
             for mini_batch in mini_batches:
                 for data in mini_batch:
-                    bias_gradients = [np.zeros(bias.shape) for bias in self.biases]
-                    weight_gradients = [np.zeros(weight.shape) for weight in self.weights]
+                    gradients = self.get_gradients(data[0], data[1])
+                    bias_gradients = gradients['bias_gradients']
+                    weight_gradients = gradients['weight_gradients']
 
-                    # forward pass
-                    activations = [data[0]]
-                    activation = activations[0]
-                    sigmoid_z_caches = []
+    def get_gradients(self, inputs, expected_outputs):
+        bias_gradients = [np.zeros(bias.shape) for bias in self.biases]
+        weight_gradients = [np.zeros(weight.shape) for weight in self.weights]
 
-                    for i in range(len(self.biases)):
-                        bias = self.biases[i]
-                        weight = self.weights[i]
-                        z = np.dot(weight, activation) + bias
-                        activation = math_utils.sigmoid(z)
-                        activations.append(activation)
-                        sigmoid_z_caches.append(z)
+        # forward pass
+        activations = [inputs]
+        activation = activations[0]
+        sigmoid_z_caches = []
 
-                    # backward propagation
+        for i in range(len(self.biases)):
+            bias = self.biases[i]
+            weight = self.weights[i]
+            z = np.dot(weight, activation) + bias
+            activation = math_utils.sigmoid(z)
+            activations.append(activation)
+            sigmoid_z_caches.append(z)
 
-                    # err for the output layer
-                    output_diff = activations[-1] - data[1]
-                    err = output_diff * math_utils.sigmoid_derivative(sigmoid_z_caches[-1])
+        # backward propagation
 
-                    bias_gradients[-1] = err
-                    weight_gradients[-1] = np.dot(err, activations[-2].T)
+        # err for the output layer
+        output_diff = activations[-1] - expected_outputs
+        err = output_diff * math_utils.sigmoid_derivative(sigmoid_z_caches[-1])
 
-                    # err for the hidden layers
-                    for l in range(len(self.layer_sizes) - 1, 1, -1):
-                        err = np.dot(self.weights[l-1].T, err) * \
-                            math_utils.sigmoid_derivative(sigmoid_z_caches[l-2])
-                        bias_gradients[l-2] = err
-                        weight_gradients[l-2] = np.dot(err, activations[l-2].T)
+        bias_gradients[-1] = err
+        weight_gradients[-1] = np.dot(err, activations[-2].T)
 
-                    exit()
+        # err for the hidden layers
+        for l in range(len(self.layer_sizes) - 1, 1, -1):
+            err = np.dot(self.weights[l - 1].T, err) * \
+                  math_utils.sigmoid_derivative(sigmoid_z_caches[l - 2])
+            bias_gradients[l - 2] = err
+            weight_gradients[l - 2] = np.dot(err, activations[l - 2].T)
+
+        return {
+            'bias_gradients': bias_gradients,
+            'weight_gradients': weight_gradients
+        }
 
 
     def get_mini_batches(self, training_data, mini_batch_size):
