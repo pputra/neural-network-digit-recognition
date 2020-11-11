@@ -30,15 +30,15 @@ class Network:
                     self.update_to_learn_biases_weights(to_learn_biases, to_learn_weights,
                                                         bias_gradients, weight_gradients)
 
-                self.update_nn_biases_weights(learning_rate, to_learn_biases, to_learn_weights, len(mini_batch))
+                self.update_nn_biases_weights(learning_rate, to_learn_biases, to_learn_weights)
 
             if test_data and verbose:
                 self.print_accuracy(test_data, epoch_i)
 
-    def update_nn_biases_weights(self, learning_rate, to_learn_biases, to_learn_weights, mini_batch_size):
+    def update_nn_biases_weights(self, learning_rate, to_learn_biases, to_learn_weights):
         for i in range(len(self.biases)):
-            self.biases[i] = self.biases[i] - (learning_rate / mini_batch_size) * to_learn_biases[i]
-            self.weights[i] = self.weights[i] - (learning_rate / mini_batch_size) * to_learn_weights[i]
+            self.biases[i] = self.biases[i] - learning_rate * to_learn_biases[i]
+            self.weights[i] = self.weights[i] - learning_rate * to_learn_weights[i]
 
     def update_to_learn_biases_weights(self, biases, weights, bias_gradients, weight_gradients):
         for i in range(len(self.biases)):
@@ -58,15 +58,21 @@ class Network:
             bias = self.biases[i]
             weight = self.weights[i]
             z = np.dot(weight, activation) + bias
-            activation = math_utils.sigmoid(z)
+
+            if i == len(self.biases) - 1:
+                # output layer
+                activation = math_utils.softmax(z)
+            else:
+                # hidden layers
+                activation = math_utils.sigmoid(z)
+
             activations.append(activation)
             sigmoid_z_caches.append(z)
 
         # backward propagation
 
         # err for the output layer
-        output_diff = activations[-1] - expected_outputs
-        err = output_diff * math_utils.sigmoid_derivative(sigmoid_z_caches[-1])
+        err = math_utils.cross_entropy(activations[-1], expected_outputs)
 
         bias_gradients[-1] = err
         weight_gradients[-1] = np.dot(err, activations[-2].T)
