@@ -1,12 +1,11 @@
 import numpy as np
 
-# from random import shuffle
+from random import shuffle
 import math_utils
 
 
 class Network:
     def __init__(self, layer_sizes):
-        self.num_hidden_layers = len(layer_sizes) - 2
         self.layer_sizes = layer_sizes
         self.biases = [np.random.randn(num_rows, 1) for num_rows in self.layer_sizes[1:]]
         self.weights = []
@@ -16,7 +15,7 @@ class Network:
             output_neuron_nums = self.layer_sizes[i + 1]
             self.weights.append(np.random.randn(output_neuron_nums, input_neuron_nums))
 
-    def train(self, training_data, mini_batch_size, epochs, learning_rate):
+    def train(self, training_data, test_data, mini_batch_size, epochs, learning_rate, verbose):
         for epoch_i in range(epochs):
             mini_batches = self.get_mini_batches(training_data, mini_batch_size)
 
@@ -32,6 +31,9 @@ class Network:
                                                         bias_gradients, weight_gradients)
 
                 self.update_nn_biases_weights(learning_rate, to_learn_biases, to_learn_weights, len(mini_batch))
+
+            if test_data and verbose:
+                self.print_accuracy(test_data, epoch_i)
 
     def update_nn_biases_weights(self, learning_rate, to_learn_biases, to_learn_weights, mini_batch_size):
         for i in range(len(self.biases)):
@@ -70,11 +72,11 @@ class Network:
         weight_gradients[-1] = np.dot(err, activations[-2].T)
 
         # err for the hidden layers
-        for l in range(len(self.layer_sizes) - 1, 1, -1):
-            err = np.dot(self.weights[l - 1].T, err) * \
-                  math_utils.sigmoid_derivative(sigmoid_z_caches[l - 2])
-            bias_gradients[l - 2] = err
-            weight_gradients[l - 2] = np.dot(err, activations[l - 2].T)
+        for i in range(len(self.layer_sizes) - 1, 1, -1):
+            err = np.dot(self.weights[i-1].T, err) * \
+                  math_utils.sigmoid_derivative(sigmoid_z_caches[i-2])
+            bias_gradients[i-2] = err
+            weight_gradients[i-2] = np.dot(err, activations[i-2].T)
 
         return {
             'bias_gradients': bias_gradients,
@@ -82,6 +84,24 @@ class Network:
         }
 
     def get_mini_batches(self, training_data, mini_batch_size):
-        # TODO: shuffle data later
-        # shuffle(training_data)
+        shuffle(training_data)
         return [training_data[i:i + mini_batch_size] for i in range(0, len(training_data), mini_batch_size)]
+
+    def print_accuracy(self, test_data, epoch_i):
+        nums_correct_result = 0
+
+        for data in test_data:
+            expected_result = data[1]
+            activation = data[0]
+
+            for i in range(len(self.biases)):
+                bias = self.biases[i]
+                weight = self.weights[i]
+                z = np.dot(weight, activation) + bias
+                activation = math_utils.sigmoid(z)
+            actual_result = np.argmax(activation)
+
+            if actual_result == expected_result:
+                nums_correct_result += 1
+
+        print('epoch', epoch_i, ' accuracy:', nums_correct_result / len(test_data))
