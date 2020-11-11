@@ -1,6 +1,6 @@
 import numpy as np
 
-from random import shuffle
+# from random import shuffle
 import math_utils
 
 
@@ -20,10 +20,19 @@ class Network:
         for epoch_i in range(epochs):
             mini_batches = self.get_mini_batches(training_data, mini_batch_size)
             for mini_batch in mini_batches:
+                bias_caches = [np.zeros(bias.shape) for bias in self.biases]
+                weight_caches = [np.zeros(weight.shape) for weight in self.weights]
+
                 for data in mini_batch:
                     gradients = self.get_gradients(data[0], data[1])
                     bias_gradients = gradients['bias_gradients']
                     weight_gradients = gradients['weight_gradients']
+                    self.update_bias_weight_caches(bias_caches, weight_caches, bias_gradients, weight_gradients)
+
+    def update_bias_weight_caches(self, bias_caches, weight_caches, bias_gradients, weight_gradients):
+        for i in range(len(self.biases)):
+            bias_caches[i] = bias_caches[i] + bias_gradients[i]
+            weight_caches[i] = weight_caches[i] + weight_gradients[i]
 
     def get_gradients(self, inputs, expected_outputs):
         bias_gradients = [np.zeros(bias.shape) for bias in self.biases]
@@ -62,7 +71,6 @@ class Network:
             'bias_gradients': bias_gradients,
             'weight_gradients': weight_gradients
         }
-
 
     def get_mini_batches(self, training_data, mini_batch_size):
         # TODO: shuffle data later
