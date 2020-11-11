@@ -2,7 +2,7 @@ from numpy import genfromtxt, zeros
 import numpy as np
 
 from neural_network import Network
-from nn_config import LAYER_SIZES, MINI_BATCH_SIZE, EPOCHS
+from nn_config import LAYER_SIZES, MINI_BATCH_SIZE, EPOCHS, LEARNING_RATE
 
 
 def get_training_data():
@@ -24,4 +24,4 @@ def get_training_data():
 training_data = get_training_data()
 
 neural_network = Network(LAYER_SIZES)
-neural_network.train(training_data, MINI_BATCH_SIZE, EPOCHS)
+neural_network.train(training_data, MINI_BATCH_SIZE, EPOCHS, LEARNING_RATE)
