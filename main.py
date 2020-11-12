@@ -2,7 +2,7 @@ from data_loader import DataLoader
 from neural_network import Network
 from training_parameters import LAYER_SIZES, MINI_BATCH_SIZE, EPOCHS, LEARNING_RATE
 from config import VERBOSE, TRAIN_IMAGE_DIR, TRAIN_LABEL_DIR,\
-    TRAINING_DATA_SKIP_FOOTER, TEST_IMAGE_DIR, TEST_LABEL_DIR, TEST_DATA_SKIP_FOOTER
+    TRAINING_DATA_SKIP_FOOTER, TEST_IMAGE_DIR, TEST_LABEL_DIR, TEST_DATA_SKIP_FOOTER, TEST_PREDICTIONS_FILENAME
 
 if VERBOSE:
     print('loading training data...')
@@ -16,4 +16,5 @@ if VERBOSE:
     print('begin training...')
 
 neural_network = Network(LAYER_SIZES)
-neural_network.train(training_data, test_data, MINI_BATCH_SIZE, EPOCHS, LEARNING_RATE, VERBOSE)
+neural_network.train(training_data, test_data, MINI_BATCH_SIZE, EPOCHS,
+                     LEARNING_RATE, VERBOSE, TEST_PREDICTIONS_FILENAME)

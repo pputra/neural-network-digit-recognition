@@ -2,6 +2,7 @@ import numpy as np
 
 from random import shuffle
 import math_utils
+from training_io import TrainingIO
 
 
 class Network:
@@ -15,7 +16,8 @@ class Network:
             output_neuron_nums = self.layer_sizes[i + 1]
             self.weights.append(np.random.randn(output_neuron_nums, input_neuron_nums))
 
-    def train(self, training_data, test_data, mini_batch_size, epochs, learning_rate, verbose):
+    def train(self, training_data, test_data, mini_batch_size, epochs, learning_rate, verbose,
+              test_predictions_file_name):
         for epoch_i in range(epochs):
             mini_batches = self.get_mini_batches(training_data, mini_batch_size)
 
@@ -33,7 +35,10 @@ class Network:
                 self.update_nn_biases_weights(learning_rate, to_learn_biases, to_learn_weights)
 
             if test_data and verbose:
-                self.print_accuracy(test_data, epoch_i)
+                TrainingIO.print_accuracy(self.biases, self.weights, test_data, epoch_i)
+
+        if test_data and test_predictions_file_name:
+            TrainingIO.write_predictions(self.biases, self.weights, test_data, test_predictions_file_name)
 
     def update_nn_biases_weights(self, learning_rate, to_learn_biases, to_learn_weights):
         for i in range(len(self.biases)):
@@ -92,22 +97,3 @@ class Network:
     def get_mini_batches(self, training_data, mini_batch_size):
         shuffle(training_data)
         return [training_data[i:i + mini_batch_size] for i in range(0, len(training_data), mini_batch_size)]
-
-    def print_accuracy(self, test_data, epoch_i):
-        nums_correct_result = 0
-
-        for data in test_data:
-            expected_result = data[1]
-            activation = data[0]
-
-            for i in range(len(self.biases)):
-                bias = self.biases[i]
-                weight = self.weights[i]
-                z = np.dot(weight, activation) + bias
-                activation = math_utils.sigmoid(z)
-            actual_result = np.argmax(activation)
-
-            if actual_result == expected_result:
-                nums_correct_result += 1
-
-        print('epoch', epoch_i, ' accuracy:', nums_correct_result / len(test_data))
